@@ -1,0 +1,359 @@
+/* ============================================
+   动画和过渡效果定义
+   赛博朋克风格动画
+   ============================================ */
+
+/* 打字机动画 */
+@keyframes typewriter {
+  from {
+    width: 0;
+    border-right: 2px solid var(--neon-green);
+  }
+  to {
+    width: 100%;
+    border-right: 2px solid var(--neon-green);
+  }
+}
+
+/* 光标闪烁 */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 强脉冲 */
+@keyframes pulse-strong {
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px currentColor; }
+  50% { opacity: 0.7; box-shadow: 0 0 20px currentColor; }
+}
+
+/* 扫描线动画 */
+@keyframes scanlines {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(10px); }
+}
+
+/* Neon 发光 */
+@keyframes neon-glow {
+  0%, 100% {
+    text-shadow: 0 0 5px var(--neon-green);
+    color: var(--neon-green);
+  }
+  50% {
+    text-shadow: 0 0 15px var(--neon-green);
+    color: #00ff88;
+  }
+}
+
+/* Neon 发光强 */
+@keyframes neon-glow-strong {
+  0%, 100% {
+    text-shadow: 0 0 5px currentColor;
+    color: currentColor;
+  }
+  50% {
+    text-shadow: 0 0 20px currentColor;
+  }
+}
+
+/* 闪烁 */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  10% { opacity: 0.9; }
+  20% { opacity: 0.8; }
+  30% { opacity: 1; }
+  40% { opacity: 0.95; }
+  50% { opacity: 1; }
+  60% { opacity: 0.9; }
+  70% { opacity: 1; }
+  80% { opacity: 0.95; }
+  90% { opacity: 1; }
+}
+
+/* 强闪烁 */
+@keyframes flicker-strong {
+  0%, 100% { opacity: 1; }
+  2% { opacity: 0.5; }
+  4% { opacity: 1; }
+  8% { opacity: 0.5; }
+  10% { opacity: 1; }
+  15% { opacity: 0.8; }
+  20% { opacity: 1; }
+}
+
+/* 滑入从左 */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 滑入从右 */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 滑入从上 */
+@keyframes slide-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 滑入从下 */
+@keyframes slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 淡入 */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 淡出 */
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* 缩放进入 */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 缩放退出 */
+@keyframes scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* 旋转 */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 轻微旋转 */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 上下浮动 */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* 左右摇晃 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* 强摇晃 */
+@keyframes shake-strong {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+  20%, 40%, 60%, 80% { transform: translateX(10px); }
+}
+
+/* 彩虹色渐变 */
+@keyframes rainbow {
+  0% { color: var(--neon-red); }
+  20% { color: var(--neon-gold); }
+  40% { color: var(--neon-green); }
+  60% { color: var(--neon-cyan); }
+  80% { color: var(--neon-blue); }
+  100% { color: var(--neon-red); }
+}
+
+/* 彩虹发光 */
+@keyframes rainbow-glow {
+  0% { text-shadow: 0 0 10px var(--neon-red); color: var(--neon-red); }
+  20% { text-shadow: 0 0 10px var(--neon-gold); color: var(--neon-gold); }
+  40% { text-shadow: 0 0 10px var(--neon-green); color: var(--neon-green); }
+  60% { text-shadow: 0 0 10px var(--neon-cyan); color: var(--neon-cyan); }
+  80% { text-shadow: 0 0 10px var(--neon-blue); color: var(--neon-blue); }
+  100% { text-shadow: 0 0 10px var(--neon-red); color: var(--neon-red); }
+}
+
+/* 放大脉冲 */
+@keyframes scale-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* 边框流动 */
+@keyframes border-flow {
+  0% { border-color: var(--neon-green); }
+  25% { border-color: var(--neon-cyan); }
+  50% { border-color: var(--neon-pink); }
+  75% { border-color: var(--neon-gold); }
+  100% { border-color: var(--neon-green); }
+}
+
+/* 背景扫描 */
+@keyframes bg-scan {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 10px; }
+}
+
+/* 文本行变暗 */
+@keyframes text-scan {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* 应用类 */
+.animate-typewriter {
+  animation: typewriter 3s steps(40, end);
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid var(--neon-green);
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+.animate-pulse-strong {
+  animation: pulse-strong 1.5s infinite;
+}
+
+.animate-neon-glow {
+  animation: neon-glow 2s infinite;
+}
+
+.animate-flicker {
+  animation: flicker 3s infinite;
+}
+
+.animate-flicker-strong {
+  animation: flicker-strong 0.15s infinite;
+}
+
+.animate-slide-left {
+  animation: slide-in-left 0.5s ease-out;
+}
+
+.animate-slide-right {
+  animation: slide-in-right 0.5s ease-out;
+}
+
+.animate-slide-top {
+  animation: slide-in-top 0.5s ease-out;
+}
+
+.animate-slide-bottom {
+  animation: slide-in-bottom 0.5s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-in-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s;
+}
+
+.animate-shake-strong {
+  animation: shake-strong 0.2s;
+}
+
+.animate-rainbow {
+  animation: rainbow 3s linear infinite;
+}
+
+.animate-scale-pulse {
+  animation: scale-pulse 1.5s ease-in-out infinite;
+}
+
+.animate-border-flow {
+  animation: border-flow 3s linear infinite;
+}
+
+/* 延迟动画 */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-1000 { animation-delay: 1s; }
+
+/* 动画速度 */
+.duration-fast { animation-duration: 0.3s !important; }
+.duration-normal { animation-duration: 0.5s !important; }
+.duration-slow { animation-duration: 1s !important; }
+.duration-slower { animation-duration: 2s !important; }
+
+/* 响应式动画 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

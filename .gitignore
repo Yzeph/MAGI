@@ -1,0 +1,63 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node.js build artifacts
+**/node_modules/
+**/dist/
+**/build/
+coverage/
+.nyc_output/
+
+# Logs
+**/*.log
+backend.log
+
+# Local env and secrets
+**/.env
+**/.env.local
+**/.env.*.local
+**/.secrets
+**/.secrets.local
+
+# Keep templates tracked
+!**/.env.example
+!**/.secrets.example
+
+# Databases and temp files
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+tmp/
+temp/
+.temp/
+*.tmp
+
+# Credential/certificate files
+*.pem
+*.key
+*.crt
+
+# Internal/sensitive docs (not for public GitHub)
+backend/tools/docs/setup/SILICONFLOW_SETUP.md
+backend/tools/docs/troubleshooting/DIAGNOSIS_AND_FIX.md
+backend/tools/docs/troubleshooting/FIX_403_ERROR.md
+docs/features/SILICONFLOW_INTEGRATION_COMPLETE.md
+
+# Ignore all documentation files except README
+docs/**/*.md
+docs/**/*.txt
+backend/tools/docs/**/*.md
+backend/tools/docs/**/*.txt
+
+# Keep README files in docs trees
+!backend/README.md
+!frontend/README.md
+
