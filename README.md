@@ -114,55 +114,6 @@ npm run dev
 
 ---
 
-## 📚 文档导航
-
-### 📖 快速开始
-- [快速开始指南](./docs/quickstart/QUICK_START.md) - 🚀 新用户入门
-- [快速参考](./docs/quickstart/QUICK_REFERENCE.md) - 📋 常用命令速查
-- [README](./docs/quickstart/README.md) - 📄 概览
-
-### 🔧 指南和配置
-- [API密钥设置](./docs/guides/API_KEYS_SETUP_GUIDE.md) - 🔑 配置 API 密钥
-- [部署指南](./docs/guides/DEPLOYMENT_GUIDE.md) - 📦 生产环境部署
-- [开发路线图](./docs/guides/DEVELOPMENT_ROADMAP.md) - 🗺️ 开发计划
-
-### 📊 完成报告（按开发日期）
-- [项目总结](./docs/reports/PROJECT_SUMMARY.md) - 📊 全景概览
-- [最终完成总结](./docs/reports/FINAL_COMPLETION_SUMMARY.md) - ✅ 最终总结
-- [Day 2 完成](./docs/reports/DAY2_COMPLETION.md) - ⚙️ 数据库设计
-- [Day 3 完成](./docs/reports/DAY3_COMPLETION.md) - 🎨 前端框架搭建
-- [Day 4 完成](./docs/reports/DAY4_REPORT.md) - ⚙️ 后端实现
-- [Day 5 完成](./docs/reports/DAY5_REPORT.md) - 🎨 前端实现
-- [Day 6 完成](./docs/reports/DAY6_REPORT.md) - ✨ 样式和动画
-- [Day 7-8 完成](./docs/reports/DAY7_8_REPORT.md) - 🔧 优化和修复
-
-### ✨ 功能和优化
-- [前端优化报告](./docs/features/FRONTEND_OPTIMIZATION_REPORT.md) - 🎨 性能优化
-- [按钮交互修复](./docs/features/BUTTON_INTERACTION_FIX.md) - 🖱️ 交互改进
-- [前端数据显示修复](./docs/features/FRONTEND_DATA_DISPLAY_FIX.md) - 📊 数据处理
-- [Markdown优化完成](./docs/features/MARKDOWN_OPTIMIZATION_COMPLETED.md) - 📝 Markdown 渲染
-- [SiliconFlow集成完成](./docs/features/SILICONFLOW_INTEGRATION_COMPLETE.md) - 🤖 AI API 集成
-
-### 📑 文档索引
-- [完整文档索引](./docs/DOCUMENTATION_INDEX.md) - 🗂️ 所有文档的统一索引
-
----
-
-## 🎯 核心功能
-
-### ✅ 已完成
-
-- [x] **后端服务** (Express + WebSocket + SQLite)
-- [x] **三个 AI 代理** (BALTHASAR, CASPER, MELCHIOR)
-- [x] **三阶段讨论** (Phase 1, 2, 3 完整实现)
-- [x] **实时流式输出** (WebSocket 推送)
-- [x] **投票和共识** (自动计算共识度)
-- [x] **8 个 API 端点** (完整 RESTful)
-- [x] **Vue 3 前端** (9 个组件)
-- [x] **赛博朋克 UI** (完整样式系统)
-- [x] **24+ 动画** (流畅的交互)
-- [x] **完整文档** (详细的指南和 API)
-
 ### 🚀 功能展示
 
 **1. 提交问题**
@@ -211,22 +162,6 @@ Colors: 5 个 Neon 颜色 (绿、青、粉、金、红)
 Animations: 24+ 关键帧动画
 Effects: CRT 扫描线、闪烁、渐晕
 Responsive: 3 个断点 (台式机、平板、手机)
-```
-
----
-
-## 📊 代码统计
-
-```
-总代码行数: 3,500+ 行
-├── CSS: 1,400 行 (40.8%)
-├── 前端 Vue: 1,300 行 (37.9%)
-└── 后端 Node.js: 800 行 (21.3%)
-
-Vue 组件: 9 个
-CSS 文件: 5 个
-API 端点: 8 个
-动画定义: 24+ 个
 ```
 
 ---
@@ -372,34 +307,8 @@ MAGI/
 │   ├── index.html            # HTML 入口
 │   └── README.md             # 前端说明
 │
-├── 📁 docs/                   # 项目文档库
-│   ├── 📁 quickstart/        # 快速开始
-│   ├── 📁 guides/            # 指南文档
-│   ├── 📁 reports/           # 完成报告（按日期）
-│   ├── 📁 features/          # 功能和优化报告
-│   ├── 📁 archives/          # 存档（未来用）
-│   └── DOCUMENTATION_INDEX.md # 文档索引
-│
 └── 📄 README.md              # 本文件（项目总览）
 ```
-
----
-
-## 🎓 学习资源
-
-### 新手
-1. [QUICK_START.md](./QUICK_START.md) - 5 分钟快速上手
-2. 打开 http://localhost:5173 试用
-
-### 开发者
-1. [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) - 系统架构概览
-2. [DAY4_REPORT.md](./DAY4_REPORT.md) - 后端 API 细节
-3. [DAY5_REPORT.md](./DAY5_REPORT.md) - 前端组件细节
-4. [DAY6_REPORT.md](./DAY6_REPORT.md) - 样式和动画细节
-
-### 运维
-1. [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) - 完整部署指南
-2. 包括 PM2、Docker、Nginx 配置
 
 ---
 
@@ -476,5 +385,3 @@ MIT License - 免费使用和修改
 **🎉 项目状态: ✅ 生产就绪 (100% 完成)**
 
 **最后更新**: 2026-04-16 | **版本**: 1.0.0 | **开发周期**: 6 天
-
-> 💡 **首次使用？** 点击 [QUICK_START.md](./QUICK_START.md) 立即开始！
