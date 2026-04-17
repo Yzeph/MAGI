@@ -63,6 +63,26 @@
             <div class="detail-text consensus-text">
               <MarkdownRenderer :content="selectedItem.consensus || '未形成共识或记录丢失'" />
             </div>
+
+            <!-- 三贤者独立看法区 -->
+            <div class="magi-thoughts-section" v-if="selectedItem.balthasar_phase3 || selectedItem.casper_phase3">
+              <div class="detail-label sub-label">【 附 议 反 馈 】</div>
+              
+              <div class="thought-block" v-if="selectedItem.balthasar_phase3">
+                <div class="thought-header balthasar">BALTHASAR <span class="vote-result" :class="selectedItem.balthasar_vote ? 'success' : 'danger'">[{{ selectedItem.balthasar_vote ? '合' : '否' }}]</span></div>
+                <div class="thought-content detail-text">
+                  <MarkdownRenderer :content="selectedItem.balthasar_phase3" />
+                </div>
+              </div>
+
+              <div class="thought-block" v-if="selectedItem.casper_phase3">
+                <div class="thought-header casper">CASPER <span class="vote-result" :class="selectedItem.casper_vote ? 'success' : 'danger'">[{{ selectedItem.casper_vote ? '合' : '否' }}]</span></div>
+                <div class="thought-content detail-text">
+                  <MarkdownRenderer :content="selectedItem.casper_phase3" />
+                </div>
+              </div>
+            </div>
+            
           </div>
         </div>
       </div>
@@ -365,6 +385,59 @@ function selectItem(item) {
 .vote-result-large.danger  { color: #ff0055; border-color: #ff0055; }
 
 .v { margin: 0 10px; }
+
+/* =========================================
+   三贤者独立看法区 (Phase 3)
+   ========================================= */
+.magi-thoughts-section {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sub-label {
+  font-size: 18px;
+  color: #ffaa44;
+  border-bottom: 1px dashed rgba(225, 120, 20, 0.3);
+  margin-bottom: 5px;
+}
+
+.thought-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-left: 3px solid #E17814;
+  padding: 10px 0 10px 15px;
+}
+
+.thought-header {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.thought-header.balthasar { color: #E17814; }
+.thought-header.casper { color: #E17814; }
+
+.vote-result {
+  font-size: 14px;
+}
+.vote-result.success { color: #00ff88; }
+.vote-result.danger { color: #ff0055; }
+
+.thought-content.detail-text {
+  padding: 15px;
+  background: rgba(20, 10, 0, 0.3);
+  border: 1px solid rgba(225, 120, 20, 0.2);
+  margin-right: 15px;
+  font-size: 14px;
+}
 
 /* =========================================
    右侧：无选中时的占位

@@ -18,10 +18,24 @@ export class MAGIDatabase {
       this.db = new Database(config.dbPath);
       this.db.pragma('journal_mode = WAL');
       this.createTables();
+      this.upgradeTables();
       console.log('✅ 数据库初始化成功');
     } catch (error) {
       console.error('❌ 数据库初始化失败:', error);
       throw error;
+    }
+  }
+
+  /**
+   * 升级表结构（为了向下兼容旧数据库）
+   */
+  upgradeTables() {
+    try {
+      this.db.exec('ALTER TABLE conversations ADD COLUMN balthasar_phase3 TEXT');
+      this.db.exec('ALTER TABLE conversations ADD COLUMN casper_phase3 TEXT');
+      this.db.exec('ALTER TABLE conversations ADD COLUMN melchior_phase3 TEXT');
+    } catch (error) {
+      // 如果列已经存在，会抛出异常，这里我们直接忽略
     }
   }
 
@@ -45,6 +59,11 @@ export class MAGIDatabase {
         balthasar_phase2 TEXT,
         casper_phase2 TEXT,
         melchior_phase2 TEXT,
+
+        -- Phase 3 意见
+        balthasar_phase3 TEXT,
+        casper_phase3 TEXT,
+        melchior_phase3 TEXT,
 
         -- Phase 3: 投票和共识
         balthasar_vote INTEGER,
@@ -102,6 +121,9 @@ export class MAGIDatabase {
       balthasar_phase2,
       casper_phase2,
       melchior_phase2,
+      balthasar_phase3,
+      casper_phase3,
+      melchior_phase3,
       balthasar_vote,
       casper_vote,
       melchior_vote,
@@ -111,21 +133,28 @@ export class MAGIDatabase {
       processing_time_ms
     } = data;
 
+    // 为了兼容旧版，如果字段不存在则默认为空
+    const b3 = balthasar_phase3 || '';
+    const c3 = casper_phase3 || '';
+    const m3 = melchior_phase3 || '';
+
     const stmt = this.db.prepare(`
       INSERT INTO conversations (
         id, question,
         balthasar_phase1, casper_phase1, melchior_phase1,
         balthasar_phase2, casper_phase2, melchior_phase2,
+        balthasar_phase3, casper_phase3, melchior_phase3,
         balthasar_vote, casper_vote, melchior_vote,
         consensus, vote_passed,
         total_tokens_used, processing_time_ms
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
       id, question,
       balthasar_phase1, casper_phase1, melchior_phase1,
       balthasar_phase2, casper_phase2, melchior_phase2,
+      b3, c3, m3,
       balthasar_vote ? 1 : 0, casper_vote ? 1 : 0, melchior_vote ? 1 : 0,
       consensus, vote_passed ? 1 : 0,
       total_tokens_used, processing_time_ms
@@ -140,6 +169,7 @@ export class MAGIDatabase {
       SELECT
         id, question, created_at,
         consensus, balthasar_vote, casper_vote, melchior_vote,
+        balthasar_phase3, casper_phase3, melchior_phase3,
         processing_time_ms
       FROM conversations
       ORDER BY created_at DESC

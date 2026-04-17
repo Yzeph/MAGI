@@ -499,8 +499,10 @@ function handleQuery(question) {
 .panel-controls {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 15px;
+  height: 45px;
 }
 
 .control-btn {
@@ -528,7 +530,9 @@ function handleQuery(question) {
 .status-box-container {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 15px;
+  height: 45px;
 }
 
 .status-box {

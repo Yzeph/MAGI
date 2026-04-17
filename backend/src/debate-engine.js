@@ -223,7 +223,7 @@ ${this.phase2Results[name].substring(0, 300)}...
 3. 说明是否能达成一致结论
 4. 如果有分歧，解释分歧所在
 
-然后请以投票的形式决定: 你是否同意这个共识? (是/否)`;
+然后请在末尾以投票的形式明确表态: "我的投票结果是：同意" 或 "我的投票结果是：不同意"`;
 
     // 获取共识
     const consensusText = await this.agents.analyzeWithStream(agents[0], discussionContext, (chunk) => {
@@ -237,6 +237,7 @@ ${this.phase2Results[name].substring(0, 300)}...
     });
 
     this.phase3Results.consensus = consensusText;
+    this.phase3Results[agents[0]] = consensusText;
 
     // 让其他AI投票
     const votePromises = agents.slice(1).map(async (agentName) => {
@@ -246,7 +247,7 @@ ${this.phase2Results[name].substring(0, 300)}...
 "${consensusText.substring(0, 200)}..."
 
 请你作为 ${agentName}，简洁地说明:
-1. 你是否同意这个共识? (是/否)
+1. 明确给出你的投票结果: 同意 或 不同意
 2. 原因是什么?`;
 
       return this.agents.analyzeWithStream(agentName, votePrompt, (chunk) => {
@@ -265,13 +266,19 @@ ${this.phase2Results[name].substring(0, 300)}...
 
     // 处理投票结果
     const votes = {};
-    votes[agents[0]] = this.extractVote(consensusText); // 第一个AI的投票已在共识中
+    const melchiorVote = this.extractVote(consensusText);
+    votes[agents[0]] = melchiorVote !== null ? melchiorVote : true; // 第一个AI的投票已在共识中，如果没有明确表明，默认同意自己得出的共识
 
     agents.slice(1).forEach((agentName, index) => {
+      this.phase3Results[agentName] = voteResults[index];
       votes[agentName] = this.extractVote(voteResults[index]);
     });
 
     this.phase3Results.votes = votes;
+
+    // 这段逻辑在之前被添加用于将想法合并入共识字符串
+    // 现在前端支持独立展示三贤者的意见，不需要后端拼装了
+    this.phase3Results.consensus = consensusText;
 
     // 计算共识百分比
     const agreeCount = Object.values(votes).filter(v => v === true).length;
@@ -304,16 +311,41 @@ ${this.phase2Results[name].substring(0, 300)}...
    * 从文本中提取投票结果
    */
   extractVote(text) {
+    if (!text) return null;
     const text_lower = text.toLowerCase();
-    // 检查是否包含"是"、"同意"、"赞成"
-    if (text_lower.includes('是') || text_lower.includes('同意') || text_lower.includes('赞成')) {
-      return true;
+    
+    // 移除括号内的动作描写（如(轻笑一声)）
+    let cleanText = text_lower.replace(/（.*?）|\\(.*?\\)/g, '');
+    
+    // 移除可能干扰判断的提问复述
+    cleanText = cleanText.replace(/你是否同意这个共识/g, '');
+    cleanText = cleanText.replace(/是否同意/g, '');
+    cleanText = cleanText.replace(/我的投票结果是/g, '');
+    cleanText = cleanText.replace(/同意这个共识[？\?]/g, '');
+
+    // 作为一个后备方案，先检查开头几行是否包含明确的单字回复
+    const lines = cleanText.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
+    for (let i = 0; i < Math.min(3, lines.length); i++) {
+      const line = lines[i];
+      if (line.includes('否。') || line.includes('否，') || line === '否' || line.startsWith('否 ') || line.includes('否定的') || line.includes('不同意') || line.includes('反对') || line.includes('拒绝')) {
+        return false;
+      }
+      if (line.includes('是。') || line.includes('是，') || line === '是' || line.startsWith('是 ') || line.includes('是的') || line.includes('同意') || line.includes('赞成') || line.includes('认同')) {
+        return true;
+      }
     }
-    // 检查是否包含"否"、"不同意"、"反对"
-    if (text_lower.includes('否') || text_lower.includes('不同意') || text_lower.includes('反对')) {
-      return false;
+
+    // 寻找最先出现的意图表述
+    const match = cleanText.match(/(不同意|反对|拒绝|同意|赞成|认同|弃权|明确反对|无法同意|不能同意)/);
+    
+    if (match) {
+      const w = match[0];
+      if (w === '不同意' || w === '反对' || w === '拒绝' || w === '明确反对' || w === '无法同意' || w === '不能同意') return false;
+      if (w === '同意' || w === '赞成' || w === '认同') return true;
+      if (w === '弃权') return null;
     }
-    // 默认为中立
+
+    // 默认回退如果仍然没有明确答案
     return null;
   }
 
