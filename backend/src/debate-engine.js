@@ -6,6 +6,7 @@
  */
 
 import { MAGIAgents } from './ai-agents.js';
+import { config } from './config.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export class DebateEngine {
@@ -28,6 +29,7 @@ export class DebateEngine {
     this.phase1Results = {};
     this.phase2Results = {};
     this.phase3Results = {};
+    const startTime = Date.now();
 
     try {
       // Phase 1: 独立分析
@@ -66,11 +68,14 @@ export class DebateEngine {
 
       await this.runPhase3(question, ws);
 
+      this.processingTimeMs = Date.now() - startTime;
+
       // 完整对话结果
       const result = {
         conversationId: this.conversationId,
         question,
         timestamp: new Date().toISOString(),
+        processingTimeMs: this.processingTimeMs || 0,
         phases: {
           phase1: this.phase1Results,
           phase2: this.phase2Results,
@@ -194,98 +199,62 @@ ${context}
 
   /**
    * Phase 3: 共识形成和投票
-   * AI代理讨论并达成共识，进行投票
+   * 每个AI基于前两阶段讨论，独立给出最终立场和投票
    */
   async runPhase3(question, ws) {
     const agents = this.agents.getAgentNames();
 
-    // 构建讨论prompt
-    const discussionContext = `
+    const phaseContext = agents.map(name =>
+      `${name} 的初步分析:\n${this.phase1Results[name].substring(0, 500)}...\n\n${name} 的评价:\n${this.phase2Results[name].substring(0, 500)}...`
+    ).join('\n\n---\n\n');
+
+    const stancePrompt = `
 原始问题: ${question}
 
-所有分析总结:
-${agents
-  .map(
-    name => `
-${name} 的初步分析:
-${this.phase1Results[name].substring(0, 300)}...
+以下是所有AI在前两阶段的完整分析:
+${phaseContext}
 
-${name} 的评价:
-${this.phase2Results[name].substring(0, 300)}...
-`
-  )
-  .join('\n---\n')}
+现在，请基于上述所有分析和评价，提出你的最终立场。
+请从你的独特视角出发：
+1. 回顾你之前的分析要点
+2. 考虑其他AI的分析和评价
+3. 你的最终结论是什么
+4. 在末尾以单独一行明确给出你的投票: "投票: 同意" 或 "投票: 不同意"`;
 
-现在，请你作为 ${agents[0]} 代理，基于上述所有分析和评价，提出一个最终的共识观点。
-这个观点应该：
-1. 综合考虑三个代理的不同视角
-2. 指出主要的共识点
-3. 说明是否能达成一致结论
-4. 如果有分歧，解释分歧所在
-
-然后请在末尾以投票的形式明确表态: "我的投票结果是：同意" 或 "我的投票结果是：不同意"`;
-
-    // 获取共识
-    const consensusText = await this.agents.analyzeWithStream(agents[0], discussionContext, (chunk) => {
-      this.sendEvent(ws, 'ai_stream', {
-        ai: agents[0],  // ✨ 保持大写，与前端一致
-        phase: 3,
-        chunk,
-        conversationId: this.conversationId,
-        timestamp: new Date().toISOString()
-      });
-    });
-
-    this.phase3Results.consensus = consensusText;
-    this.phase3Results[agents[0]] = consensusText;
-
-    // 让其他AI投票
-    const votePromises = agents.slice(1).map(async (agentName) => {
-      const votePrompt = `
-基于刚才的讨论和共识:
-
-"${consensusText.substring(0, 200)}..."
-
-请你作为 ${agentName}，简洁地说明:
-1. 明确给出你的投票结果: 同意 或 不同意
-2. 原因是什么?`;
-
-      return this.agents.analyzeWithStream(agentName, votePrompt, (chunk) => {
+    // 三个AI并行输出最终立场
+    const stancePromises = agents.map(agentName =>
+      this.agents.analyzeWithStream(agentName, stancePrompt, (chunk) => {
         this.sendEvent(ws, 'ai_stream', {
-          ai: agentName,  // ✨ 保持大写，与前端一致
+          ai: agentName,
           phase: 3,
           chunk,
           conversationId: this.conversationId,
           timestamp: new Date().toISOString()
         });
-      });
-    });
+      })
+    );
 
-    // 获取所有投票
-    const voteResults = await Promise.all(votePromises);
+    const stanceResults = await Promise.all(stancePromises);
 
-    // 处理投票结果
+    // 存储每个AI的Phase 3内容并提取投票
     const votes = {};
-    const melchiorVote = this.extractVote(consensusText);
-    votes[agents[0]] = melchiorVote !== null ? melchiorVote : true; // 第一个AI的投票已在共识中，如果没有明确表明，默认同意自己得出的共识
-
-    agents.slice(1).forEach((agentName, index) => {
-      this.phase3Results[agentName] = voteResults[index];
-      votes[agentName] = this.extractVote(voteResults[index]);
+    agents.forEach((agentName, index) => {
+      this.phase3Results[agentName] = stanceResults[index];
+      const extracted = this.extractVote(stanceResults[index]);
+      votes[agentName] = extracted !== null ? extracted : true;
     });
 
     this.phase3Results.votes = votes;
 
-    // 这段逻辑在之前被添加用于将想法合并入共识字符串
-    // 现在前端支持独立展示三贤者的意见，不需要后端拼装了
-    this.phase3Results.consensus = consensusText;
+    // 以最理性的MELCHIOR的立场作为共识文本
+    this.phase3Results.consensus = this.phase3Results.MELCHIOR || stanceResults[0];
 
     // 计算共识百分比
     const agreeCount = Object.values(votes).filter(v => v === true).length;
     const consensusPercentage = Math.round((agreeCount / agents.length) * 100);
     this.phase3Results.consensusPercentage = consensusPercentage;
 
-    console.log(`✅ Phase 3 完成: ${agreeCount}/${agents.length} AI同意 (${consensusPercentage}%)`);
+    console.log(`✅ Phase 3 完成: ${agreeCount}/${agents.length} AI同意 (${consensusPercentage}%, 阈值: ${config.debate.consensusThreshold}%)`);
 
     // Phase 3 完成和投票结果事件
     this.sendEvent(ws, 'phase_complete', {
@@ -298,7 +267,7 @@ ${this.phase2Results[name].substring(0, 300)}...
     });
 
     this.sendEvent(ws, 'consensus_reached', {
-      consensus: consensusText.substring(0, 500),
+      consensus: this.phase3Results.consensus.substring(0, 500),
       agreeCount,
       totalAgents: agents.length,
       consensusPercentage,

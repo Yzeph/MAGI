@@ -5,7 +5,7 @@
  * 用于快速验证系统是否正确集成
  */
 
-import { DebateEngine } from './debate-engine.js';
+import { DebateEngine } from '../../src/debate-engine.js';
 
 class MockWebSocket {
   constructor() {

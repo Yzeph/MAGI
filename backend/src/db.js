@@ -27,15 +27,38 @@ export class MAGIDatabase {
   }
 
   /**
-   * 升级表结构（为了向下兼容旧数据库）
+   * 确保表结构是最新的（向下兼容旧数据库）
    */
   upgradeTables() {
+    const existingColumns = this.getColumnNames('conversations');
+
+    const migrations = [
+      { column: 'balthasar_phase3', sql: 'ALTER TABLE conversations ADD COLUMN balthasar_phase3 TEXT' },
+      { column: 'casper_phase3', sql: 'ALTER TABLE conversations ADD COLUMN casper_phase3 TEXT' },
+      { column: 'melchior_phase3', sql: 'ALTER TABLE conversations ADD COLUMN melchior_phase3 TEXT' },
+    ];
+
+    for (const migration of migrations) {
+      if (!existingColumns.includes(migration.column)) {
+        try {
+          this.db.exec(migration.sql);
+          console.log(`✅ 数据库迁移: 添加列 ${migration.column}`);
+        } catch (error) {
+          console.warn(`⚠️ 数据库迁移失败 (${migration.column}):`, error.message);
+        }
+      }
+    }
+  }
+
+  /**
+   * 获取表的所有列名
+   */
+  getColumnNames(tableName) {
     try {
-      this.db.exec('ALTER TABLE conversations ADD COLUMN balthasar_phase3 TEXT');
-      this.db.exec('ALTER TABLE conversations ADD COLUMN casper_phase3 TEXT');
-      this.db.exec('ALTER TABLE conversations ADD COLUMN melchior_phase3 TEXT');
-    } catch (error) {
-      // 如果列已经存在，会抛出异常，这里我们直接忽略
+      const rows = this.db.pragma(`table_info(${tableName})`);
+      return rows.map(row => row.name);
+    } catch {
+      return [];
     }
   }
 
@@ -73,7 +96,6 @@ export class MAGIDatabase {
         vote_passed INTEGER DEFAULT 0,
 
         -- 元数据
-        total_tokens_used INTEGER DEFAULT 0,
         processing_time_ms INTEGER DEFAULT 0
       )
     `);
@@ -129,7 +151,6 @@ export class MAGIDatabase {
       melchior_vote,
       consensus,
       vote_passed,
-      total_tokens_used,
       processing_time_ms
     } = data;
 
@@ -146,8 +167,8 @@ export class MAGIDatabase {
         balthasar_phase3, casper_phase3, melchior_phase3,
         balthasar_vote, casper_vote, melchior_vote,
         consensus, vote_passed,
-        total_tokens_used, processing_time_ms
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        processing_time_ms
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -157,7 +178,7 @@ export class MAGIDatabase {
       b3, c3, m3,
       balthasar_vote ? 1 : 0, casper_vote ? 1 : 0, melchior_vote ? 1 : 0,
       consensus, vote_passed ? 1 : 0,
-      total_tokens_used, processing_time_ms
+      processing_time_ms
     );
   }
 

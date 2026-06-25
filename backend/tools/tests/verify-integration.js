@@ -5,15 +5,16 @@
  * 不调用AI，只检查类和方法是否正确实现
  */
 
-import { DebateEngine } from './debate-engine.js';
-import { MAGIAgents } from './ai-agents.js';
-import { magiDB } from './db.js';
-import { config } from './config.js';
+import { DebateEngine } from '../../src/debate-engine.js';
+import { MAGIAgents } from '../../src/ai-agents.js';
+import { magiDB } from '../../src/db.js';
+import { config } from '../../src/config.js';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const srcDir = resolve(__dirname, '../../src');
 
 console.log(`
 ╔════════════════════════════════════════╗
@@ -108,7 +109,7 @@ try {
 // 5. 检查 server.js 集成
 console.log('\n🔍 检查 server.js 集成...');
 try {
-  const serverPath = `${__dirname}/server.js`;
+  const serverPath = `${srcDir}/server.js`;
   const serverCode = fs.readFileSync(serverPath, 'utf-8');
 
   // 检查关键导入
@@ -144,7 +145,7 @@ try {
   ];
 
   const allExist = requiredFiles.every(file => {
-    const fullPath = `${__dirname}/${file}`;
+    const fullPath = `${srcDir}/${file}`;
     return fs.existsSync(fullPath);
   });
 

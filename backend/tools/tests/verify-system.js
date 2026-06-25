@@ -8,6 +8,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const srcDir = path.resolve(__dirname, '../../src');
+const rootDir = path.resolve(__dirname, '../..');
 
 async function verifyMAGISystem() {
   console.log('🔍 MAGI 系统架构验证\n');
@@ -23,18 +25,18 @@ async function verifyMAGISystem() {
   console.log('\n📁 检查1: 验证必要文件\n');
 
   const requiredFiles = [
-    'config.js',
-    'server.js',
-    'ai-agents.js',
-    'db.js',
-    'key-manager.js',
-    'package.json',
-    '.env.example',
-    '.secrets.example'
+    { path: 'config.js', base: srcDir },
+    { path: 'server.js', base: srcDir },
+    { path: 'ai-agents.js', base: srcDir },
+    { path: 'db.js', base: srcDir },
+    { path: 'lib/model.js', base: rootDir },
+    { path: 'package.json', base: rootDir },
+    { path: '.env.example', base: rootDir },
+    { path: '.secrets.example', base: rootDir },
   ];
 
-  for (const file of requiredFiles) {
-    const filePath = path.join(__dirname, file);
+  for (const { path: file, base } of requiredFiles) {
+    const filePath = path.join(base, file);
     const exists = fs.existsSync(filePath);
     const status = exists ? '✅' : '❌';
     console.log(`${status} ${file}`);
@@ -44,7 +46,7 @@ async function verifyMAGISystem() {
   // ======== 检查2: 代理定义验证 ========
   console.log('\n📋 检查2: 验证AI代理定义\n');
 
-  const aiAgentsPath = path.join(__dirname, 'ai-agents.js');
+  const aiAgentsPath = path.join(srcDir, 'ai-agents.js');
   const aiAgentsContent = fs.readFileSync(aiAgentsPath, 'utf-8');
 
   const agents = ['BALTHASAR', 'CASPER', 'MELCHIOR'];
@@ -109,7 +111,7 @@ async function verifyMAGISystem() {
   // ======== 检查5: 服务器集成验证 ========
   console.log('\n\n🌐 检查5: 验证服务器集成\n');
 
-  const serverPath = path.join(__dirname, 'server.js');
+  const serverPath = path.join(srcDir, 'server.js');
   const serverContent = fs.readFileSync(serverPath, 'utf-8');
 
   const serverChecks = [
@@ -130,7 +132,7 @@ async function verifyMAGISystem() {
   // ======== 检查6: 配置验证 ========
   console.log('\n\n⚙️  检查6: 验证配置支持\n');
 
-  const configPath = path.join(__dirname, 'config.js');
+  const configPath = path.join(srcDir, 'config.js');
   const configContent = fs.readFileSync(configPath, 'utf-8');
 
   const providerChecks = [

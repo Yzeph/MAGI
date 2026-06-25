@@ -3,8 +3,8 @@
  * 测试三个独立代理的流式分析能力
  */
 
-import { MAGIAgents } from './ai-agents.js';
-import { config, validateConfig } from './config.js';
+import { MAGIAgents } from '../../src/ai-agents.js';
+import { config, validateConfig } from '../../src/config.js';
 
 async function testAgentSystem() {
   try {
@@ -95,13 +95,9 @@ async function testAgentSystem() {
 
     console.log('\n当前AI提供商配置:');
     console.log(`  • 提供商: ${config.ai.provider}`);
-
-    if (config.ai.provider.toLowerCase() === 'anthropic') {
-      console.log(`  • 模型: ${config.ai.anthropic.model}`);
-      console.log(`  • 最大令牌数: ${config.ai.maxTokens}`);
-      console.log(`  • 温度: ${config.ai.temperature}`);
-      console.log(`  • 启用思考: ${config.ai.enableThinking ? '是' : '否'}`);
-    }
+    console.log(`  • 模型: ${config.ai.model}`);
+    console.log(`  • 数据库: ${config.dbPath}`);
+    console.log(`  • 共识阈值: ${config.debate.consensusThreshold}%`);
 
     console.log('\n✅ 所有测试完成！\n');
 

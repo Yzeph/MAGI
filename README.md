@@ -2,7 +2,7 @@
 
 > 灵感来自《新世纪福音战士》的 MAGI 超级计算机
 
-**一个完整的 AI 讨论系统，采用赛博朋克美学设计，支持三阶段智能辩论、实时通信和沉浸式 UI**
+**一个完整的 AI 讨论系统，采用 NERV 机构面板美学设计，支持三阶段智能辩论、实时通信和沉浸式终端 UI**
 
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
@@ -16,11 +16,11 @@
 MAGI 是一个完全集成的 AI 讨论系统，包含：
 
 - ✅ **后端服务** (Express + WebSocket + SQLite)
-- ✅ **前端应用** (Vue 3 + 赛博朋克 UI)
-- ✅ **三阶段讨论引擎** (独立分析 → 相互评价 → 共识形成)
-- ✅ **三个独立 AI** (理性分析、道德考量、创新思维)
+- ✅ **前端应用** (Vue 3 + Tailwind CSS v4 + NERV 终端 UI)
+- ✅ **三阶段讨论引擎** (独立分析 → 相互评价 → 共识表决)
+- ✅ **三个独立 AI 人格** (BALTHASAR / CASPER / MELCHIOR)
 - ✅ **实时流式输出** (完整的 WebSocket 实现)
-- ✅ **完美的赛博朋克视觉** (Neon 配色 + CRT 效果 + 24+ 动画)
+- ✅ **NERV 机构面板视觉** (琥珀单色 + CRT 效果 + 终端美学)
 
 **项目规模**: 3,500+ 行代码 | **开发周期**: 6 天 | **功能完成**: 100%
 
@@ -57,60 +57,69 @@ npm run dev
 ## 📊 系统架构
 
 ```
-┌──────────────────────────────────────────────────┐
-│         前端应用 (Vue 3)                          │
-│  🎨 赛博朋克 UI + 24+ 动画 + CRT 效果           │
-│  📱 完全响应式设计                               │
-└────────────────────┬─────────────────────────────┘
-                     │
-          ⚡ WebSocket 双向通信
-                     │
-    ┌────────────────▼──────────────────┐
-    │    Express 服务器 (Node.js)       │
-    │ • REST API (8 个端点)              │
-    │ • WebSocket 实时推送               │
-    │ • 三阶段讨论引擎                   │
-    └────────────────┬──────────────────┘
-                     │
-    ┌────────────────┼─────────────────┐
-    │                │                 │
-    ▼                ▼                 ▼
-  BALTHASAR      CASPER          MELCHIOR
-  (理性分析)    (道德考量)      (创新思维)
-    │                │                 │
-    └────────┬───────┴────────┬────────┘
-             │                │
-    ┌────────▼────┐  ┌──────▼─────────┐
-    │ Groq API    │  │ SQLite 数据库  │
-    │ (LLM)       │  │ (历史记录)     │
-    └─────────────┘  └────────────────┘
+┌──────────────────────────────────────┐
+│   MAGI Terminal (Vue 3)             │
+│   NERV 面板 + 三核心三角布局        │
+└────────────────┬─────────────────────┘
+                 │ HTTP REST API
+    ┌────────────┴────────────┐
+    │  Express 服务器         │
+    │  REST API + WebSocket   │
+    │  三阶段辩论引擎          │
+    └────────────┬────────────┘
+                 │
+     ┌───────────┼───────────┐
+     │           │           │
+     ▼           ▼           ▼
+  BALTHASAR   CASPER    MELCHIOR
+  SCIENTIA    MULIER     MATER
+  (科学)      (女性)     (母性)
+     │           │           │
+     └──────┬────┴────┬──────┘
+            │         │
+     ┌──────▼──┐ ┌────▼─────┐
+     │ LLM API │ │ SQLite   │
+     │ (模型)  │ │ (历史)   │
+     └─────────┘ └──────────┘
 ```
 
 ---
 
 ## 🎨 界面预览
 
-**完全复古赛博朋克设计：**
+**NERV 机构终端面板：**
 
 ```
-┌────────────────金色边框────────────────────┐
-│     提訴              2              決議    │
-│    CODE:132      BALTHASAR       [審視中]  │
+┌───────────────────────────────────────────┐
+│ SYSTEM LOG              STATUS: CONNECTED │
 ├───────────────────────────────────────────┤
-│                                           │
-│   CASPER(3)              MELCHIOR(1)     │
-│  (旋转45°)    MAGI 核心    (旋转45°)     │
-│                                           │
-│      问题输入框 + 共识显示区域            │
-│                                           │
-└────────────────── 边框线──────────────────┘
+│  [BALTHASAR] DELIBERATING...              │
+│  [MELCHIOR]  EVALUATING...                │
+│  [CASPER]    ANALYZING...                 │
+├───────────────────────────────────────────┤
+│               ▲                           │
+│             ╱   ╲    三核心三角布局        │
+│          ╱         ╲   (等边三角形)       │
+│       ╱               ╲                   │
+│    ◀                     ▶                 │
+│       ╲               ╱                   │
+│         ╲         ╱                       │
+│           ╲   ╲                           │
+│             ▼                             │
+├───────────────────────────────────────────┤
+│  > 问题输入区域                            │
+│  ┌─────────────────────────────────┐      │
+│  │ 审议结果输出                  │      │
+│  └─────────────────────────────────┘      │
+└───────────────────────────────────────────┘
 ```
 
-**特色效果：**
-- ✨ Neon 发光文本 (绿、青、金、粉、红)
-- 📺 CRT 扫描线 + 闪烁 + 渐晕
-- 🎬 打字机、脉冲、滑入、边框流动等 24+ 动画
-- 📱 完美的响应式设计 (台式机 → 手机)
+**特征：**
+- 琥珀单色 (#C47A0A) 终端配色，模拟 CRT 磷光老化效果
+- 三核心等边三角形布局，SVG 连接线
+- CRT 扫描线覆盖 + 文本发光
+- 打字机逐字输出审议结论
+- 响应式设计
 
 ---
 
@@ -145,42 +154,48 @@ Runtime: Node.js 18+
 Framework: Express 4.x
 Database: SQLite 3
 API: RESTful + WebSocket
-LLM: Groq Claude API
+LLM: 兼容 OpenAI 协议的大语言模型 API
 ```
 
 ### 前端
 ```yaml
-Framework: Vue 3 (Composition API)
+Framework: Vue 3 (Composition API, <script setup>)
 Build: Vite 5
-Styles: CSS 3 (1400+ 行)
-Design: Cyberpunk Theme
+Styles: Tailwind CSS v4 + 全局 CSS 变量
+Design: NERV 机构面板 / EVA MAGI 终端美学
 ```
 
 ### 样式系统
 ```yaml
-Colors: 5 个 Neon 颜色 (绿、青、粉、金、红)
-Animations: 24+ 关键帧动画
-Effects: CRT 扫描线、闪烁、渐晕
-Responsive: 3 个断点 (台式机、平板、手机)
+Colors: 琥珀单色系 (#C47A0A, #E17814, rgba 变体)
+Fonts: Barlow Condensed (工业标牌) + Courier Prime (终端等宽)
+Effects: CRT 扫描线、磷光发光、脉冲
+Responsive: 弹性 clamp() 缩放，适应各种屏幕
 ```
 
 ---
 
 ## 🔧 配置
 
-### 后端配置 (backend/.env)
+### 后端配置
+
+参见 `backend/.env.example`，支持多 AI 提供商：
 
 ```env
-PORT=3000
-NODE_ENV=development
-GROQ_API_KEY=your-key-here
-DB_PATH=./magi.db
+# 提供商: anthropic | openai | siliconflow | deepseek | openai-compatible
+AI_PROVIDER=deepseek
+
+# 各人格可独立配置 provider / API Key / 模型
+# BALTHASAR_API_KEY=
+# CASPER_API_KEY=
+# MELCHIOR_API_KEY=
 ```
 
-### 前端配置 (自动代理)
+API 密钥建议放在 `.secrets`（已 `.gitignore`）。
 
-- API 代理: `localhost:3000`
-- WebSocket: `ws://localhost:3000/ws`
+### 前端配置
+
+- API 代理: `localhost:3000`（vite.config.js 中配置）
 
 ---
 
@@ -215,24 +230,27 @@ GET    /api/health             # 健康检查
 
 ## 🎨 视觉效果
 
-### Neon 配色
+### 配色
 
-| 颜色 | 代码 | 用途 |
+| 色 | 代码 | 用途 |
 |------|------|------|
-| 🟢 绿色 | #00ff88 | 主文本、边框 |
-| 🔵 青色 | #00e5ff | 次要元素、焦点 |
-| 💜 粉红 | #ff00ff | 共识、强调 |
-| 🟡 金色 | #ffaa00 | 标题、边框 |
-| 🔴 红色 | #ff0055 | 错误、反对 |
+| 琥珀 | #E17814 / #C47A0A | 主文本、边框、系统输出 |
+| 深琥珀 | rgba(225,120,20,0.5) | 次要文本、占位 |
+| 青 | #54D3D7 | 共识通过、完成状态 |
+| 红 | #ff3333 | 拒绝、错误状态 |
+| 绿 | #7affa8 | 批准状态 |
+
+### 字体
+
+- **Barlow Condensed** — 核心名称、状态标签（工业标牌风格）
+- **Courier Prime** — 终端文本、审议输出、日志（等宽终端）
+- 中日文回退: Noto Sans SC / Microsoft YaHei
 
 ### 动画效果
 
-- 打字机 (文字逐字显示)
-- 脉冲 (发光元素闪烁)
-- 扫描线 (CRT 显示器效果)
-- 闪烁 (屏幕风格)
-- 滑入 (页面过渡)
-- 色彩流动 (边框变化)
+- 打字机 (审议结论逐字输出)
+- 脉冲 (核心思考时发光呼吸)
+- CRT 扫描线 (全局覆盖层)
 
 ---
 
@@ -263,46 +281,33 @@ MAGI/
 ├── 📁 backend/                 # 后端服务（Node.js）
 │   ├── 📁 src/                # 核心应用代码
 │   │   ├── server.js          # Express + WebSocket 服务器
-│   │   ├── ai-agents.js       # AI 代理配置
+│   │   ├── ai-agents.js       # AI 代理编排
 │   │   ├── debate-engine.js   # 三阶段辩论引擎
 │   │   ├── db.js              # SQLite 数据库
-│   │   ├── config.js          # 全局配置
-│   │   └── key-manager.js     # API 密钥管理
+│   │   └── config.js          # 全局配置
+│   ├── 📁 lib/                # 核心库
+│   │   └── model.js           # 模型调用统一入口
 │   ├── 📁 config/             # 配置文件
 │   │   ├── package.json
 │   │   └── package-lock.json
-│   ├── 📁 tools/              # 工具和文档
-│   │   ├── 📁 tests/          # 测试脚本集合
-│   │   │   ├── test-agents.js
-│   │   │   ├── test-chat-api.js
-│   │   │   ├── test-quick.js
-│   │   │   ├── test-siliconflow.js
-│   │   │   ├── test-three-phases.js
-│   │   │   ├── integration-test.js
-│   │   │   ├── verify-system.js
-│   │   │   └── verify-integration.js
-│   │   ├── 📁 scripts/        # 辅助脚本
-│   │   ├── 📁 utilities/      # 工具函数库
-│   │   └── 📁 docs/           # 技术文档
-│   │       ├── 📁 setup/
-│   │       └── 📁 troubleshooting/
+│   ├── 📁 tools/tests/        # 测试脚本集合
+│   │   ├── verify-system.js
+│   │   ├── verify-integration.js
+│   │   ├── test-agents.js
+│   │   ├── test-quick.js
+│   │   └── test-siliconflow.js
 │   ├── README.md              # 后端说明
 │   └── magi.db                # SQLite 数据库
 │
 ├── 📁 frontend/               # 前端应用（Vue 3 + Vite）
 │   ├── 📁 src/               # 源代码
-│   │   ├── 📁 components/    # Vue 组件库
-│   │   ├── 📁 utils/         # 工具函数
+│   │   ├── 📁 components/    # Vue 组件
+│   │   ├── 📁 composables/   # 组合式函数
 │   │   ├── 📁 assets/        # 静态资源
 │   │   ├── App.vue           # 根组件
 │   │   └── main.js           # 入口文件
 │   ├── 📁 config/            # 配置文件
-│   │   ├── package.json
-│   │   └── package-lock.json
-│   ├── 📁 tools/             # 工具和文档
-│   │   ├── 📁 tests/         # 测试工具
-│   │   ├── 📁 scripts/       # 脚本
-│   │   └── 📁 docs/          # 文档
+│   │   └── package.json
 │   ├── vite.config.js        # Vite 配置
 │   ├── index.html            # HTML 入口
 │   └── README.md             # 前端说明
@@ -318,13 +323,13 @@ MAGI/
 A: 确保后端在 localhost:3000 运行，查看浏览器控制台错误信息
 
 ### Q: AI 没有回应？
-A: 检查 GROQ_API_KEY 环境变量是否设置正确
+A: 检查 .secrets 文件或环境变量中 AI 提供商的 API Key 是否设置正确
 
 ### Q: 样式显示错乱？
 A: 清除浏览器缓存 (Ctrl+Shift+Delete)，硬刷新 (Ctrl+Shift+R)
 
 ### Q: 如何修改 AI 角色？
-A: 编辑 backend/debateEngine.js 中的 system prompt
+A: 编辑 backend/src/debate-engine.js 中的 system prompt
 
 更多问题见 [DEPLOYMENT_GUIDE.md#故障排除](./DEPLOYMENT_GUIDE.md#故障排除)
 
@@ -384,4 +389,4 @@ MIT License - 免费使用和修改
 
 **🎉 项目状态: ✅ 生产就绪 (100% 完成)**
 
-**最后更新**: 2026-04-16 | **版本**: 1.0.0 | **开发周期**: 6 天
+**最后更新**: 2026-06-25 | **版本**: 2.0.0 | **开发周期**: 6 天

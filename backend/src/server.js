@@ -43,16 +43,19 @@ app.use((req, res, next) => {
 // ============ HTTP API 路由 ============
 
 /**
- * 健康检查端点
+ * 健康检查端点 (兼容两种路径)
  */
-app.get('/health', (req, res) => {
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
+
+function healthHandler(req, res) {
   res.json({
     status: 'ok',
     app: config.app.name,
     version: config.app.version,
     timestamp: new Date().toISOString()
   });
-});
+}
 
 /**
  * API 信息端点
@@ -63,7 +66,7 @@ app.get('/api/info', (req, res) => {
     version: config.app.version,
     description: config.app.description,
     endpoints: {
-      health: 'GET /health',
+      health: 'GET /api/health',
       info: 'GET /api/info',
       query: 'POST /api/query (HTTP同步查询)',
       history: 'GET /api/history (获取历史记录)',
@@ -115,9 +118,8 @@ app.post('/api/query', async (req, res) => {
         casper_vote: result.votes.CASPER || null,
         melchior_vote: result.votes.MELCHIOR || null,
         consensus: result.consensus || '',
-        vote_passed: result.phases.phase3.consensusPercentage >= 67 ? 1 : 0,
-        total_tokens_used: 0,
-        processing_time_ms: 0
+        vote_passed: result.phases.phase3.consensusPercentage >= config.debate.consensusThreshold ? 1 : 0,
+        processing_time_ms: result.processingTimeMs || 0
       });
       console.log(`✅ 对话已保存到数据库 (${result.conversationId})`);
     } catch (dbError) {
@@ -417,9 +419,8 @@ async function handleQuery(ws, question, clientId) {
         casper_vote: result.votes.CASPER || null,
         melchior_vote: result.votes.MELCHIOR || null,
         consensus: result.consensus || '',
-        vote_passed: result.phases.phase3.consensusPercentage >= 67 ? 1 : 0,
-        total_tokens_used: 0,
-        processing_time_ms: 0
+        vote_passed: result.phases.phase3.consensusPercentage >= config.debate.consensusThreshold ? 1 : 0,
+        processing_time_ms: result.processingTimeMs || 0
       });
       console.log(`✅ 对话已保存到数据库 (${result.conversationId})`);
     } catch (dbError) {

@@ -4,11 +4,13 @@
 
 ### `/src` - 核心应用代码
 - **server.js** - 主服务器入口（WebSocket、REST API）
-- **ai-agents.js** - AI代理配置（BALTHASAR、CASPER、MELCHIOR）
+- **ai-agents.js** - AI代理编排（BALTHASAR、CASPER、MELCHIOR）
 - **debate-engine.js** - 三阶段辩论引擎（独立分析→相互评价→投票）
 - **db.js** - SQLite数据库管理
-- **config.js** - 全局配置（端口、API密钥等）
-- **key-manager.js** - API密钥和认证管理
+- **config.js** - 全局配置（端口、数据库等）
+
+### `/lib` - 核心库
+- **model.js** - 模型调用统一入口（provider 配置、客户端创建、流式调用）
 
 ### `/config` - 配置文件
 - **package.json** - NPM项目配置和依赖
@@ -25,17 +27,6 @@
 - **integration-test.js** - 完整集成测试
 - **verify-system.js** - 系统验证脚本
 - **verify-integration.js** - 集成验证脚本
-
-#### `/tools/scripts` - 辅助脚本
-_用于部署、迁移、维护等_
-
-#### `/tools/utilities` - 工具函数库
-_可复用的工具函数_
-
-### `/tools` 文档
-- **DIAGNOSIS_AND_FIX.md** - 诊断和修复指南
-- **FIX_403_ERROR.md** - 403错误解决方案
-- **SILICONFLOW_SETUP.md** - SiliconFlow API设置指南
 
 ### 根目录配置文件
 - **.env** - 环境变量（本地）
