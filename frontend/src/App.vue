@@ -1,21 +1,9 @@
 <template>
-  <div id="app">
-    <MAGIInterface />
+  <div id="app" class="w-screen h-screen overflow-hidden bg-nerv-bg">
+    <MAGITerminal />
   </div>
 </template>
 
 <script setup>
-import MAGIInterface from './components/MAGIInterface.vue'
+import MAGITerminal from './components/MAGITerminal.vue'
 </script>
-
-<style>
-/* Reset everything to ensure fullscreen edge-to-edge layout */
-html, body, #app {
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #000;
-  overflow: hidden;
-}
-</style>

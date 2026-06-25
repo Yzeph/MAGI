@@ -1,949 +1,677 @@
-
 <template>
-  <div class="magi-interface-v2">
-    <div class="magi-outer-border">
-      <div class="magi-inner-border">
-        
-        <!-- Header Section -->
-        <div class="magi-header">
-          <!-- Left Text "提訴" and Control Buttons -->
-          <div class="header-left">
-            <div class="cyan-line"></div>
-            <div class="header-title">提訴</div>
-            <div class="cyan-line"></div>
-            
-            <!-- Restored Control Buttons -->
-            <div class="panel-controls">
-              <button
-                class="control-btn"
-                @click="showHistory = !showHistory"
-                :class="{ active: showHistory }"
-                title="打开历史记录面板"
-              >
-                 历史
-              </button>
-              <button
-                class="control-btn"
-                @click="showAiWindows = !showAiWindows"
-                :class="{ active: showAiWindows }"
-                title="显示AI分析详情"
-              >
-                 AI回答
-              </button>
-            </div>
-          </div>
-          
-          <!-- Central Input Area -->
-          <div class="header-space">
-            <div class="global-input-wrapper">
-              <QuestionInput @submit="handleQuery" :loading="isQuerying" />
-            </div>
-          </div>
+  <div
+    class="magi-app"
+    :data-loading="loading ? 'true' : null"
+    :data-status="pageStatus"
+    :data-vote-status="finalVoteStatus"
+  >
+    <h2 class="magi-logo">MAGI</h2>
 
-          <!-- Right Text "決議" -->
-          <div class="header-right">
-            <div class="cyan-line"></div>
-            <div class="header-title">決議</div>
-            <div class="cyan-line"></div>
-            <div class="status-box-container">
-              <div class="status-box">
-                <span v-if="currentConversation && !currentVote">審議中</span>
-                <span v-else-if="currentVote">終結</span>
-                <span v-else>待機中</span>
-              </div>
-            </div>
-          </div>
+    <div class="magi-box" @click="handleBoxClick">
+      <!-- HEADER -->
+      <header>
+        <h1>提訴</h1>
+        <h1>決議</h1>
+      </header>
+
+      <!-- CONFIG BOX -->
+      <div class="config-box">
+        <h4>Code: <b class="code">{{ randomCode }}</b></h4>
+        <p>File: <b class="file">MAGI_SYS</b></p>
+        <p>Volume: <b class="volume" :data-text="volume"></b></p>
+        <p>EX_MODE: <b class="ex-mode" data-text="OFF"></b></p>
+        <p>Priority: <b class="priority" data-text="AAA"></b></p>
+        <p>Sound: <b class="sound" data-text="ON"></b></p>
+        <b class="reset" @click.stop="handleReset">RESET</b>
+      </div>
+
+      <!-- VOTE STATUS -->
+      <div class="final-vote-status" :data-status="finalVoteStatus"></div>
+
+      <!-- THREE CORES -->
+      <div class="magi-list">
+        <div class="magi-item melchior" :data-status="getCoreStatus('MELCHIOR')">
+          <h3>MELCHIOR</h3>
+          <h2></h2>
         </div>
-
-        <!-- Center Panels Section -->
-        <div class="magi-panels">
-          <div class="panels-container">
-            <!-- Top Shape Panel -->
-            <div class="panel-box panel-top" :class="{ 'resolving-flash-1': currentPhase === 3 }">
-              <svg class="panel-svg" viewBox="0 0 450 300" preserveAspectRatio="none">
-                <polygon points="2,2 448,2 448,250 400,298 50,298 2,250" class="panel-polygon" />
-              </svg>
-              <div class="panel-inner-content">
-                <div class="panel-label">MELCHIOR - 1</div>
-                <div class="ai-output" v-if="currentPhase1?.MELCHIOR">
-                  {{ currentPhase1.MELCHIOR }}
-                </div>
-              </div>
-            </div>
-
-            <!-- Bottom Row Panels -->
-            <div class="panels-bottom-row">
-              <!-- Bottom Left (BALTHASAR) -->
-              <div class="panel-box panel-bl" :class="{ 'resolving-flash-2': currentPhase === 3 }">
-                <svg class="panel-svg" viewBox="0 0 400 250" preserveAspectRatio="none">
-                  <!-- Start TopLeft -> TopRight(flat) -> Slant -> BottomRight -> BottomLeft -->
-                  <polygon points="2,2 350,2 398,50 398,248 2,248" class="panel-polygon" />
-                </svg>
-                <div class="panel-inner-content">
-                  <div class="panel-label">BALTHASAR - 2</div>
-                  <div class="ai-output" v-if="currentPhase1?.BALTHASAR">
-                    {{ currentPhase1.BALTHASAR }}
-                  </div>
-                </div>
-              </div>
-
-              <!-- Connecting visual Y shapes -->
-              <div class="connections-wrapper">
-                <div class="y-line y-left"></div>
-                <div class="y-line y-right"></div>
-                <div class="y-line y-bottom"></div>
-                <div class="y-h-line-left"></div>
-                <div class="y-h-line-right"></div>
-                <div class="magi-logo-text">MAGI</div>
-              </div>
-
-              <!-- Bottom Right (CASPER) -->
-              <div class="panel-box panel-br" :class="{ 'resolving-flash-3': currentPhase === 3 }">
-                <svg class="panel-svg" viewBox="0 0 400 250" preserveAspectRatio="none">
-                  <!-- Start TopLeft(slant) -> TopRight -> BottomRight -> BottomLeft -> Slant -->
-                  <polygon points="50,2 398,2 398,248 2,248 2,50" class="panel-polygon" />
-                </svg>
-                <div class="panel-inner-content">
-                  <div class="panel-label">CASPER - 3</div>
-                  <div class="ai-output" v-if="currentPhase1?.CASPER">
-                    {{ currentPhase1.CASPER }}
-                  </div>
-                </div>
-              </div>
-            </div> <!-- end bottom row -->
-
-          </div>
-        </div> 
-        
-      </div> 
-    </div> 
-
-    <!-- AI 回答详情窗口面板（点击按钮显示） -->
-    <div v-if="showAiWindows" class="ai-windows-overlay">
-      <div class="ai-windows-content">
-        <button class="close-btn" @click="showAiWindows = false" title="关闭">✕</button>
-        <div class="windows-grid">
-          <div v-for="ai in aiAgents" :key="ai.name" class="ai-window-container">
-            <AIWindow
-              :name="ai.name"
-              :title="ai.title"
-              :color="ai.color"
-              :phase1="currentPhase1 ? currentPhase1[ai.name] : ''"
-              :phase2="currentPhase2 ? currentPhase2[ai.name] : ''"
-              :vote="currentVote ? currentVote[ai.name] : null"
-              :isLoading="isQuerying && !currentPhase1?.[ai.name]"
-            />
-          </div>
+        <div class="magi-item malthasar" :data-status="getCoreStatus('BALTHASAR')">
+          <h2></h2>
+          <h3>BALTHASAR</h3>
+        </div>
+        <div class="magi-item casper" :data-status="getCoreStatus('CASPER')">
+          <h3>CASPER</h3>
+          <h2></h2>
         </div>
       </div>
+
+      <!-- QUESTION INPUT -->
+      <div class="query-bar">
+        <div class="qb-label">QUESTION</div>
+        <div class="qb-row">
+          <textarea
+            v-model="question" class="qb-input"
+            placeholder="电车难题，牺牲少数拯救多数。"
+            @keydown.enter.exact="handleQuery" @click.stop
+            :disabled="isQuerying" rows="1"
+          ></textarea>
+          <button class="qb-btn" @click.stop="handleQuery" :disabled="!question.trim() || isQuerying">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer>
+        <a @click.stop="showHistory = true">LOG</a>
+        <span>·</span>
+        <span>MAGI v2.0</span>
+        <span>·</span>
+        <span class="ft-status" :class="{ active: wsStatus === 'connected' }">
+          {{ wsStatus === 'connected' ? 'ONLINE' : 'OFFLINE' }}
+        </span>
+      </footer>
     </div>
 
-    <!-- 历史记录面板（点击按钮显示） -->
-    <div v-if="showHistory" class="history-overlay">
-      <div class="history-content">
-        <button class="close-btn history-close" @click="showHistory = false" title="关闭">✕</button>
+    <!-- OVERLAY -->
+    <div v-if="showHistory" class="history-overlay" @click.self="showHistory = false">
+      <div class="ho-box">
+        <div class="ho-header">
+          <span>SYSTEM LOG</span>
+          <b class="reset" @click="showHistory = false">CLOSE</b>
+        </div>
         <HistoryPanel @close="showHistory = false" />
       </div>
     </div>
-
-
-    <!-- 最终决议结果展示弹出窗口 -->
-    <div v-if="showResult" class="result-overlay">
-      <div class="result-content magi-panel-shadow">
-        <button class="close-btn result-close" @click="showResult = false" title="关闭">✕</button>
-        <div class="result-header">
-          <div class="cyan-line"></div>
-          <div class="result-title">FINAL RESOLUTION</div>
-          <div class="cyan-line"></div>
-        </div>
-        <div class="result-process">
-          <div class="process-title">PHASE 3 共识形成</div>
-
-          <div class="process-sides">
-            <div class="process-card">
-              <div class="process-agent">BALTHASAR</div>
-              <div class="process-content">
-                <AnimatedMarkdownText :text="phase3ByAgent.BALTHASAR" :speed="12" />
-              </div>
-            </div>
-            <div class="process-card">
-              <div class="process-agent">CASPER</div>
-              <div class="process-content">
-                <AnimatedMarkdownText :text="phase3ByAgent.CASPER" :speed="12" />
-              </div>
-            </div>
-          </div>
-
-          <div class="process-main">
-            <div class="process-card">
-              <div class="process-agent">MELCHIOR</div>
-              <div class="process-content">
-                <AnimatedMarkdownText :text="phase3ByAgent.MELCHIOR" :speed="12" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="result-footer" v-if="currentConversation && currentConversation.votes">
-          <div class="vote-summary">
-            <span class="vote-label">MELCHIOR:</span>
-            <span :class="currentConversation.votes.MELCHIOR ? 'vote-approve' : 'vote-reject'">
-              {{ currentConversation.votes.MELCHIOR ? 'AGREE' : 'DENY' }}
-            </span>
-          </div>
-          <div class="vote-summary">
-            <span class="vote-label">BALTHASAR:</span>
-            <span :class="currentConversation.votes.BALTHASAR ? 'vote-approve' : 'vote-reject'">
-              {{ currentConversation.votes.BALTHASAR ? 'AGREE' : 'DENY' }}
-            </span>
-          </div>
-          <div class="vote-summary">
-            <span class="vote-label">CASPER:</span>
-            <span :class="currentConversation.votes.CASPER ? 'vote-approve' : 'vote-reject'">
-              {{ currentConversation.votes.CASPER ? 'AGREE' : 'DENY' }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> <!-- end of magi-interface-v2 -->
+  </div>
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
-import QuestionInput from './QuestionInput.vue'
-import AIWindow from './AIWindow.vue'
-import AnimatedMarkdownText from './AnimatedMarkdownText.vue'
+import { ref, computed, onMounted } from 'vue'
 import HistoryPanel from './HistoryPanel.vue'
-
-const wsStatus = ref('disconnected')
-const isQuerying = ref(false)
-const currentPhase = ref(0)
-const currentConversation = ref(null)
-const currentPhase1 = ref(null)
-const currentPhase2 = ref(null)
-const currentPhase3 = ref(null)
-const currentVote = ref(null)
+import { useWebSocket } from '../composables/useWebSocket.js'
+import { useDebate } from '../composables/useDebate.js'
 
 const showHistory = ref(false)
-const showAiWindows = ref(false)
-const showResult = ref(false)
+const question = ref('')
+const loading = ref(true)
+const randomCode = ref(264)
+const volume = ref(66)
 
-const aiAgents = [
-  { name: 'BALTHASAR', title: '理性分析者', color: '#00e5ff' },
-  { name: 'CASPER', title: '道德考量者', color: '#ff00ff' },
-  { name: 'MELCHIOR', title: '创新者', color: '#ffaa00' }
-]
+const {
+  isQuerying, currentPhase, currentConversation,
+  currentPhase1, currentPhase2, currentPhase3,
+  currentVote, phase3ByAgent, handleWebSocketMessage,
+  submitQuestion, reset, finalizeToResult,
+} = useDebate()
 
-const phase3ByAgent = computed(() => {
-  return {
-    BALTHASAR: currentPhase3.value?.BALTHASAR || '',
-    CASPER: currentPhase3.value?.CASPER || '',
-    MELCHIOR: currentPhase3.value?.MELCHIOR || ''
-  }
+const { status: wsStatus, connect, send } = useWebSocket({
+  onMessage: (data) => { handleWebSocketMessage(data) }
 })
-
-let ws = null
-let phase3FinalizeTimer = null
-
-function clearPhase3FinalizeTimer() {
-  if (phase3FinalizeTimer) {
-    clearTimeout(phase3FinalizeTimer)
-    phase3FinalizeTimer = null
-  }
-}
-
-function normalizeAgentName(name) {
-  const normalized = (name || '').toString().trim().toUpperCase()
-  if (normalized === 'BALTHASAR' || normalized === 'CASPER' || normalized === 'MELCHIOR') {
-    return normalized
-  }
-  return 'MELCHIOR'
-}
-
-function appendPhase3Chunk(aiName, chunk) {
-  const safeChunk = typeof chunk === 'string' ? chunk : ''
-  if (!safeChunk) return
-
-  const agentName = normalizeAgentName(aiName)
-  if (!currentPhase3.value) currentPhase3.value = {}
-  currentPhase3.value[agentName] = (currentPhase3.value[agentName] || '') + safeChunk
-}
-
-function finalizeToResult(payload = {}) {
-  isQuerying.value = false
-  currentPhase.value = 0
-
-  if (payload.votes) {
-    currentVote.value = payload.votes
-  }
-
-  const fallbackConsensus =
-    payload.consensus ||
-    currentPhase3.value?.MELCHIOR ||
-    currentPhase3.value?.BALTHASAR ||
-    currentPhase3.value?.CASPER ||
-    ''
-
-  if (!currentConversation.value) {
-    currentConversation.value = {
-      consensus: fallbackConsensus,
-      votes: payload.votes || currentVote.value || {}
-    }
-  } else {
-    currentConversation.value = {
-      ...currentConversation.value,
-      consensus: currentConversation.value.consensus || fallbackConsensus,
-      votes: payload.votes || currentConversation.value.votes || currentVote.value || {}
-    }
-  }
-
-  showAiWindows.value = false
-  showResult.value = true
-}
-
-function schedulePhase3FinalizeFallback() {
-  clearPhase3FinalizeTimer()
-  phase3FinalizeTimer = setTimeout(() => {
-    // 若处于第三阶段且已有第三阶段内容，认为流式输出已结束，执行兜底收敛
-    const hasPhase3Content =
-      !!currentPhase3.value?.MELCHIOR ||
-      !!currentPhase3.value?.BALTHASAR ||
-      !!currentPhase3.value?.CASPER
-
-    if (currentPhase.value === 3 && hasPhase3Content) {
-      finalizeToResult()
-    }
-  }, 6000)
-}
 
 onMounted(() => {
-  initWebSocket()
+  connect()
+  randomCode.value = 100 + Math.floor(Math.random() * 600)
+  setTimeout(() => { loading.value = false }, 1000)
 })
 
-function initWebSocket() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  ws = new WebSocket(`${protocol}//${window.location.host}/ws`)
+const pageStatus = computed(() => {
+  if (isQuerying.value) return 'voting'
+  if (currentVote.value && Object.keys(currentVote.value).length > 0) return 'voted'
+  return null
+})
 
-  ws.onopen = () => {
-    wsStatus.value = 'connected'
-  }
+const finalVoteStatus = computed(() => {
+  if (!currentVote.value) return ''
+  const votes = Object.values(currentVote.value)
+  const yes = votes.filter(v => v === true).length
+  const no = votes.filter(v => v === false).length
+  if (yes >= 2) return 'resolve'
+  if (no >= 2) return 'reject'
+  return ''
+})
 
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data)
-    handleWebSocketMessage(data)
-  }
-
-  ws.onclose = () => {
-    wsStatus.value = 'disconnected'
-    setTimeout(initWebSocket, 3000)
-  }
+function getCoreStatus(name) {
+  const v = currentVote.value?.[name]
+  if (v === true) return 'resolve'
+  if (v === false) return 'reject'
+  return ''
 }
 
-function handleWebSocketMessage(data) {
-  const { type } = data
-  if (import.meta.env.DEV) {
-    console.debug('[MAGI WS]', type, data.phase ? `phase=${data.phase}` : '')
-  }
-  switch (type) {
-    case 'phase_start':
-      currentPhase.value = data.phase
-      // 如果进入了阶段分析，也可以自动弹开详情面板
-      if(data.phase === 1) showAiWindows.value = true
-      if (data.phase === 3) {
-        clearPhase3FinalizeTimer()
-        showAiWindows.value = false
-        showResult.value = true
-      }
-      break
-    case 'ai_stream':
-      if (data.phase === 1) {
-        if (!currentPhase1.value) currentPhase1.value = {}
-        currentPhase1.value[data.ai] = (currentPhase1.value[data.ai] || '') + data.chunk
-      } else if (data.phase === 2) {
-        if (!currentPhase2.value) currentPhase2.value = {}
-        currentPhase2.value[data.ai] = (currentPhase2.value[data.ai] || '') + data.chunk
-      } else if (data.phase === 3) {
-        appendPhase3Chunk(data.ai, data.chunk)
-        schedulePhase3FinalizeFallback()
-      }
-      break
-    case 'phase_complete':
-      // 兜底：即使丢失 conversation_complete，也在 Phase 3 结束时自动切换到结果窗口
-      if (data.phase === 3) {
-        clearPhase3FinalizeTimer()
-        finalizeToResult({ votes: data.votes })
-      }
-      break
-    case 'consensus_reached':
-      // 兜底：提前收到共识摘要时，也允许先展示结果窗口
-      clearPhase3FinalizeTimer()
-      finalizeToResult({
-        consensus: data.consensus,
-        votes: currentVote.value || currentConversation.value?.votes || {}
-      })
-      break
-    case 'conversation_complete':
-      clearPhase3FinalizeTimer()
-      currentConversation.value = data
-      currentVote.value = data.votes
-      isQuerying.value = false
-      currentPhase.value = 0
-      showAiWindows.value = false // 隐藏 AI 思考面板
-      showResult.value = true     // 自动弹开最终结果窗口
-      break
-    case 'error':
-      isQuerying.value = false
-      currentPhase.value = 0
-      break
-  }
+function handleBoxClick() {}
+
+function handleQuery() {
+  if (!question.value.trim() || isQuerying.value) return
+  const sent = send(submitQuestion(question.value))
+  if (sent) question.value = ''
 }
 
-function handleQuery(question) {
-  if (!ws || ws.readyState !== WebSocket.OPEN) return
-  clearPhase3FinalizeTimer()
-  isQuerying.value = true
-  currentPhase.value = 0
-  currentPhase1.value = {}
-  currentPhase2.value = {}
-  currentPhase3.value = {}
-  currentConversation.value = null
-  currentVote.value = null
-  showAiWindows.value = true
-  showResult.value = false
-
-  ws.send(JSON.stringify({ type: 'query', question }))
-}
+function handleReset() { reset() }
 </script>
 
 <style scoped>
+/* ============================================
+   MAGI System — faithful to itorr/magi
+   Base: 2em = 32px (matches html{font-size:2em})
+   Sizing uses em/rem, scales via font-size
+   ============================================ */
 
-.magi-interface-v2 {
+/* ---- Root / Variables ---- */
+.magi-app {
+  --color-orange: #FF8C00;
+  --color-yellow: #FFFF00;
+  --color-green: #7FFF00;
+  --color-black: #000;
+  --color-red: #CC0000;
+  --body-padding: 20px;
+  --app-height: 100vh;
+  --flash-time: 0.4s;
+
+  font-size: 2em;
   width: 100vw;
   height: 100vh;
-  background-color: #000000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2vw;
-  box-sizing: border-box;
-  color: #ff8c00;
-  user-select: none;
+  overflow: hidden;
+  font-weight: 900;
+  font-family: 'Playfair Display', 'Noto Serif SC', 'Georgia', serif;
+  background: var(--color-black);
+  color: var(--color-orange);
+  text-align: center;
   position: relative;
-}
-
-.magi-outer-border {
-  width: 100%;
-  height: 100%;
-  border: 3px solid #E17814;
-  padding: 15px;
   box-sizing: border-box;
+  -webkit-text-size-adjust: none;
 }
 
-.magi-inner-border {
-  width: 100%;
-  height: 100%;
-  border: 1.5px solid #E17814;
-  display: flex;
-  flex-direction: column;
+/* ---- Inset Border ---- */
+.magi-app::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 0 0 var(--body-padding) var(--color-orange) inset;
+  transition: color 1s ease, box-shadow 1s ease;
+}
+
+.magi-app[data-loading="true"]::before {
+  box-shadow: 0 0 0 0 var(--color-orange) inset;
+}
+
+.magi-app[data-vote-status="resolve"]::before {
+  box-shadow: 0 0 0 var(--body-padding) var(--color-green) inset;
+}
+
+.magi-app[data-vote-status="reject"]::before {
+  box-shadow: 0 0 0 var(--body-padding) var(--color-red) inset;
+}
+
+h1, h2, h3, h4, p { margin: 0; }
+a { color: currentColor; text-decoration: none; }
+::selection { background: none; }
+
+/* ---- MAGI Logo (absolutely centered) ---- */
+.magi-logo {
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  margin: auto;
+  width: 8em;
+  height: 8em;
+  line-height: 8em;
+  border-radius: 9em;
+  font-size: 2em;
+  box-shadow: 0 0 0 .18em currentColor;
+  pointer-events: none;
+  z-index: 1;
+  transition: top 1s ease, transform 1s ease;
+}
+
+.magi-app[data-loading="true"] .magi-logo {
+  top: 0;
+  transform: scale(4);
+  transition: transform .3s ease;
+}
+
+/* ---- magi-box ---- */
+.magi-box {
+  margin: var(--body-padding);
+  padding: var(--body-padding);
   position: relative;
+  box-sizing: border-box;
+  height: calc(100% - var(--body-padding) * 2);
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 1.4s ease-out, opacity .5s ease;
 }
 
-/* Header Area */
-.magi-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 40px 100px 0 100px;
-  height: auto;
+.magi-app[data-loading="true"] .magi-box {
+  transform: scale(.9);
+  opacity: 0;
 }
 
-.header-left, .header-right {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 350px;
+/* ---- Header: 提訴 / 決議 ---- */
+header::after {
+  content: '';
+  display: block;
+  clear: both;
 }
 
-.header-space {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 40px;
+header h1 {
+  font-size: 4em;
+  display: inline-block;
+  transform: scale(1, .8);
+  position: relative;
+  padding: 0 .1em;
+  margin: 0 .05em;
+  letter-spacing: .1em;
 }
 
-.global-input-wrapper {
-  width: 100%;
-  max-width: 800px;
+header h1:nth-child(1) { float: left; }
+header h1:nth-child(2) { float: right; }
+
+header h1::before,
+header h1::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  border-radius: .5px;
+}
+
+header h1::before {
+  top: 0;
+  box-shadow:
+    0 0 0 2px currentColor,
+    0 -8px 0 .5px var(--color-black),
+    0 -8px 0 2px currentColor;
+}
+
+header h1::after {
+  bottom: 0;
+  box-shadow:
+    0 0 0 2px currentColor,
+    0 8px 0 .5px var(--color-black),
+    0 8px 0 2px currentColor;
+}
+
+/* ---- Config Box ---- */
+.config-box {
+  font-weight: 200;
+  font-family: 'Courier New', 'Noto Sans SC', monospace;
+  font-size: .8em;
+  text-align: left;
+  padding: 2em .3em;
+  text-transform: uppercase;
+}
+
+.config-box h4 {
+  font-size: 3em;
+  transform: scale(.6, 1);
+  transform-origin: 0 0;
+}
+
+.config-box p {
+  line-height: 1.4;
+  transform: scale(1, 1.4);
+}
+
+[data-text]::before { content: attr(data-text); }
+[data-text="ERR"] { pointer-events: none; }
+.volume::after { content: '%'; }
+.volume[data-text="1"]::before { content: '0.0000001'; }
+
+.config-box .reset {
+  visibility: hidden;
+  display: inline-block;
+  margin: 1em 0;
+  padding: 0 .3em;
+  line-height: 1.4;
+  box-shadow: 0 0 0 .1em currentColor;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1em;
+  background: none;
+  color: currentColor;
+  border: none;
+}
+
+.config-box .reset:hover {
+  background: rgba(255, 140, 0, 0.1);
+}
+
+/* ---- Final Vote Status ---- */
+.final-vote-status {
+  position: absolute;
+  font-size: 2.5em;
+  top: 3.4em;
+  right: .5em;
+  line-height: 1;
+  padding: .1em 0;
+  visibility: hidden;
+  box-shadow:
+    0 0 0 .03em currentColor,
+    0 0 0 .07em var(--color-black),
+    0 0 0 .1em currentColor;
+}
+
+.final-vote-status::before {
+  display: inline-block;
+  transform: scale(.85, 1);
+}
+
+.final-vote-status[data-status="reject"] {
+  color: var(--color-red);
+}
+.final-vote-status[data-status="reject"]::before {
+  content: '否定';
+}
+
+.final-vote-status[data-status="resolve"] {
+  color: var(--color-green);
+}
+.final-vote-status[data-status="resolve"]::before {
+  content: '承認';
+}
+
+/* ---- Three Cores ---- */
+.magi-list {
+  position: relative;
+  height: 100%;
+}
+
+.magi-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8em;
+  height: 8em;
+  display: inline-block;
+  box-shadow:
+    0 0 0 .1em var(--color-black),
+    0 0 0 .4em currentColor,
+    0 0 0 .5em var(--color-black);
+  background: var(--color-green);
+  text-align: center;
+  padding: 0;
+  font-family: 'Courier New', monospace;
+  transition: background .4s, box-shadow .4s;
+}
+
+.magi-item h2 {
+  font-size: 4em;
+  font-weight: 900;
+  transform: scale(1.2, 1);
+  line-height: 1.5;
+  color: var(--color-black);
+}
+
+.magi-item h3 {
+  font-size: 1em;
+  line-height: 2em;
+  letter-spacing: .1em;
+  color: var(--color-black);
+}
+
+.magi-item.melchior {
+  transform: translate(35%, 10%) rotate(-57deg);
+}
+.magi-item.melchior h2::before { content: '1'; }
+
+.magi-item.malthasar {
+  transform: translate(-50%, -135%);
+}
+.magi-item.malthasar h2::before { content: '2'; }
+
+.magi-item.casper {
+  transform: translate(-35%, 10%) rotate(57deg);
+}
+.magi-item.casper h2::before { content: '3'; }
+
+/* Core results */
+.magi-item[data-status="resolve"] { background: var(--color-green); }
+
+.magi-item[data-status="reject"] {
+  background: var(--color-red);
+  animation: red-flash 1s infinite ease;
+}
+
+@keyframes red-flash {
+  70% { background: #BB0000; }
+}
+
+/* ---- Voting Animation ---- */
+.magi-app[data-status="voting"] .magi-box > * { pointer-events: none; }
+
+.magi-app[data-status="voting"] .magi-item {
+  animation: magi-flash var(--flash-time) infinite step-end;
+}
+
+.magi-app[data-status="voting"] .magi-item h2::before {
+  font-size: .6em;
+  font-family: 'Playfair Display', serif;
+  content: '承認';
+  animation: value-flash var(--flash-time) infinite step-end;
+}
+
+.magi-app[data-status="voting"] .magi-item.melchior { animation-delay: .1s; }
+.magi-app[data-status="voting"] .magi-item.malthasar { animation-delay: .2s; }
+.magi-app[data-status="voting"] .magi-item.casper { animation-delay: .3s; }
+
+@keyframes magi-flash {
+  50% { background-color: var(--color-red); }
+}
+
+@keyframes value-flash {
+  50% { content: '否定'; }
+}
+
+/* Vote status during voting */
+.magi-app[data-status="voting"] .final-vote-status {
+  visibility: visible;
+  animation: vote-flash var(--flash-time) infinite step-end;
+  color: var(--color-yellow);
+}
+
+.magi-app[data-status="voting"] .final-vote-status::before {
+  content: '審議中';
+}
+
+@keyframes vote-flash {
+  60% { visibility: hidden; }
+}
+
+/* Voted state */
+.magi-app[data-status="voted"] .config-box .reset {
+  visibility: visible;
+}
+
+.magi-app[data-status="voted"] .final-vote-status {
+  visibility: visible;
+  margin: 0 .5em;
+}
+
+.magi-app[data-status="voted"] .magi-item h2::before {
+  font-size: .6em;
+  font-family: 'Playfair Display', serif;
+}
+
+.magi-app[data-status="voted"] .magi-item[data-status="resolve"] h2::before {
+  content: '承認';
+}
+
+.magi-app[data-status="voted"] .magi-item[data-status="reject"] h2::before {
+  content: '否定';
+}
+
+/* ---- Query Bar ---- */
+.query-bar {
+  position: absolute;
+  bottom: 2.2em;
+  left: 0;
+  right: 0;
+  padding: 0 1em;
   z-index: 10;
 }
 
-.cyan-line {
-  height: 4px;
-  background-color: #00A0A0;
-  margin: 8px 0;
-  box-shadow: 0 0 3px #00A0A0;
+.qb-label {
+  font-family: 'Courier New', monospace;
+  font-size: .25em;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  opacity: .4;
+  text-align: left;
+  margin-bottom: .2em;
+  font-weight: 400;
 }
 
-.header-title {
-  font-family: var(--font-serif);
-  font-size: 110px;
-  font-weight: 900;
-  text-align: center;
-  color: #E17814;
-  line-height: 1;
-  text-shadow: 0 0 5px rgba(225, 120, 20, 0.5);
-  letter-spacing: 10px;
+.qb-row {
+  display: flex;
+  align-items: center;
+  gap: .3em;
 }
 
-/* Button Controls */
-.panel-controls {
+.qb-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 140, 0, 0.3);
+  color: var(--color-orange);
+  font-family: 'Courier New', monospace;
+  font-size: .35em;
+  padding: .2em 0;
+  outline: none;
+  resize: none;
+  letter-spacing: .05em;
+  line-height: 1.5;
+  cursor: text;
+}
+
+.qb-input:focus { border-bottom-color: var(--color-orange); }
+.qb-input::placeholder { color: rgba(255, 140, 0, 0.3); }
+.qb-input:disabled { opacity: .4; }
+
+.qb-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 140, 0, 0.4);
+  color: var(--color-orange);
+  width: 1.6em;
+  height: 1.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.qb-btn:hover:not(:disabled) {
+  background: rgba(255, 140, 0, 0.15);
+  border-color: var(--color-orange);
+}
+.qb-btn:disabled { opacity: .25; cursor: not-allowed; }
+
+.qb-btn svg {
+  width: .7em;
+  height: .7em;
+}
+
+/* ---- Footer ---- */
+footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: .25em;
+  padding: .5em .7em;
+  font-weight: 400;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  opacity: .6;
+  transition: transform .3s ease, opacity .3s ease;
+}
+
+.magi-app[data-loading="true"] footer {
+  opacity: 0;
+  transform: translate(0, 10px);
+}
+
+footer a { cursor: pointer; }
+footer a:hover { opacity: .8; }
+
+.ft-status.active {
+  color: var(--color-green);
+  text-shadow: 0 0 6px rgba(127, 255, 0, 0.3);
+}
+
+/* ---- History Overlay ---- */
+.history-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ho-box {
+  width: min(85vw, 700px);
+  height: min(75vh, 500px);
+  background: #000;
+  border: 1px solid var(--color-orange);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ho-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  margin-top: 15px;
-  height: 45px;
+  padding: .7em 1em;
+  border-bottom: 1px solid rgba(255, 140, 0, 0.3);
+  font-family: 'Courier New', monospace;
+  font-size: .5em;
+  text-transform: uppercase;
+  letter-spacing: .15em;
 }
 
-.control-btn {
-  flex: 1;
-  background: rgba(225, 120, 20, 0.1);
-  border: 1px solid #E17814;
-  color: #E17814;
-  padding: 8px;
-  font-size: 16px;
-  font-weight: bold;
+.ho-header .reset {
+  background: none;
+  border: 1px solid rgba(255, 140, 0, 0.35);
+  color: var(--color-orange);
+  font-family: 'Courier New', monospace;
+  font-size: .7em;
+  padding: .2em .5em;
   cursor: pointer;
-  transition: all 0.3s;
-  border-radius: 4px;
+  letter-spacing: .15em;
 }
 
-.control-btn:hover {
-  background: rgba(225, 120, 20, 0.3);
+.ho-header .reset:hover {
+  background: rgba(255, 140, 0, 0.1);
 }
 
-.control-btn.active {
-  background: #E17814;
-  color: #000;
+/* ---- Responsive Breakpoints ---- */
+/* Exact same breakpoints as itorr/magi */
+@media (max-width: 1000px), (max-height: 800px) {
+  .magi-app { font-size: 1.5em; }
 }
 
-.status-box-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 15px;
-  height: 45px;
+@media (max-width: 700px), (max-height: 700px) {
+  .magi-app { --body-padding: 15px; font-size: 1.2em; }
 }
 
-.status-box {
-  border: 2px solid #E17814;
-  padding: 6px 12px;
-  font-family: var(--font-serif);
-  font-size: 28px;
-  font-weight: bold;
-  letter-spacing: 3px;
-  color: #E17814;
+@media (max-width: 700px) {
+  .magi-app .magi-logo { top: 20%; }
 }
 
-/* Panels Area */
-.magi-panels {
-  flex: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transform: translateY(-20px);
+@media (max-width: 520px), (max-height: 520px) {
+  .magi-app { --body-padding: 12px; font-size: .9em; }
 }
 
-.panels-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-
-.panel-box {
-  position: relative;
-  background-color: transparent;
-}
-
-.panel-svg {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.panel-polygon {
-  fill: transparent;
-  stroke: #E17814;
-  stroke-width: 4;
-}
-
-.panel-inner-content {
-  position: relative;
-  z-index: 2;
-  padding: 30px;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  color: #E17814;
-}
-
-.panel-top {
-  width: 450px;
-  height: 300px;
-  margin-bottom: 5px;
-  z-index: 3;
-}
-
-.panels-bottom-row {
-  display: flex;
-  justify-content: center;
-  position: relative;
-}
-
-.panel-bl {
-  width: 400px;
-  height: 250px;
-  margin-right: 50px;
-}
-
-.panel-br {
-  width: 400px;
-  height: 250px;
-  margin-left: 50px;
-}
-
-.panel-label {
-  font-family: var(--font-mono);
-  font-weight: bold;
-  font-size: 16px;
-  text-align: center;
-  border-bottom: 1px solid #E17814;
-  padding-bottom: 5px;
-  margin-bottom: 15px;
-}
-
-.ai-output {
-  font-size: 14px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  flex: 1;
-  overflow-y: auto;
-  font-family: var(--font-mono);
-}
-
-.connections-wrapper {
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 120px;
-  z-index: 2;
-}
-
-.y-line {
-  position: absolute;
-  background-color: #E17814;
-}
-
-.y-left {
-  width: 6px;
-  height: 40px;
-  top: 15px;
-  left: 31px;
-  transform: rotate(-45deg);
-}
-
-.y-right {
-  width: 6px;
-  height: 40px;
-  top: 15px;
-  right: 31px;
-  transform: rotate(45deg);
-}
-
-.y-h-line-left {
-  position: absolute;
-  width: 25px;
-  height: 6px;
-  background-color: #E17814;
-  top: 48px;
-  left: -20px;
-}
-
-.y-h-line-right {
-  position: absolute;
-  width: 25px;
-  height: 6px;
-  background-color: #E17814;
-  top: 48px;
-  right: -20px;
-}
-
-.y-bottom {
-  width: 6px;
-  height: 25px;
-  top: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.magi-logo-text {
-  font-family: var(--font-serif);
-  font-size: 26px;
-  font-weight: 900;
-  color: #E17814;
-  position: absolute;
-  top: 55px;
-  left: 50%;
-  transform: translateX(-50%);
-  letter-spacing: 2px;
-}
-
-/* Modals Overlay CSS */
-.ai-windows-overlay, .history-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(3px);
-}
-
-.ai-windows-content, .history-content {
-  width: 90vw;
-  height: 85vh;
-  position: relative;
-  background: #050810;
-  border: 2px solid #E17814;
-  padding: 20px;
-  box-shadow: 0 0 30px rgba(225, 120, 20, 0.3);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.close-btn {
-  position: sticky;
-  top: -5px;
-  align-self: flex-end;
-  margin-top: -5px;
-  margin-bottom: -36px;
-  background: rgba(10, 5, 0, 0.8);
-  color: #E17814;
-  border: 1px solid #E17814;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: bold;
-  cursor: pointer;
-  z-index: 100;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: #E17814;
-  color: #000;
-  box-shadow: 0 0 10px #E17814;
-}
-
-.windows-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  height: 100%;
-  flex: 1;
-  min-height: 0; /* allows shrinking if needed */
-}
-
-.ai-window-container {
-  height: 100%;
-}
-/* RESOLVING FLASH ANIMATION */
-.resolving-flash-1 .panel-polygon {
-  animation: magi-blink-fill 1.5s infinite;
-  animation-delay: 0s;
-}
-.resolving-flash-2 .panel-polygon {
-  animation: magi-blink-fill 1.5s infinite;
-  animation-delay: 0.5s;
-}
-.resolving-flash-3 .panel-polygon {
-  animation: magi-blink-fill 1.5s infinite;
-  animation-delay: 1.0s;
-}
-@keyframes magi-blink-fill {
-  0%, 15% {
-    fill: rgb(122, 255, 168);
-    stroke: rgb(122, 255, 168);
-  }
-  20%, 100% {
-    fill: transparent;
-    stroke: #E17814;
-  }
-}
-
-/* Result Overlay Styles */
-.result-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 3000;
-  backdrop-filter: blur(5px);
-}
-
-.result-content {
-  width: 80%;
-  max-width: 900px;
-  max-height: 80vh;
-  overflow-y: auto;
-  background: rgba(10, 10, 10, 0.95);
-  border: 2px solid #E17814;
-  box-shadow: 0 0 30px rgba(225, 120, 20, 0.3), inset 0 0 20px rgba(225, 120, 20, 0.1);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  padding: 30px;
-}
-
-.result-close {
-  /* same sticky trick as the main modal */
-  position: sticky;
-  top: -15px;
-  align-self: flex-end;
-  margin-top: -15px;
-  margin-bottom: -21px;
-}
-
-.result-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.result-title {
-  color: #E17814;
-  font-family: var(--font-sans);
-  font-size: 28px;
-  letter-spacing: 8px;
-  font-weight: 900;
-  text-shadow: 0 0 10px #E17814;
-}
-
-.result-process {
-  margin-top: 6px;
-  border: 1px solid rgba(225, 120, 20, 0.25);
-  background: rgba(10, 8, 2, 0.35);
-  padding: 12px;
-}
-
-.process-title {
-  color: #E17814;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-  text-shadow: 0 0 8px rgba(225, 120, 20, 0.6);
-}
-
-.process-sides {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.process-main {
-  margin-bottom: 10px;
-}
-
-.process-card {
-  border: 1px solid rgba(225, 120, 20, 0.35);
-  background: rgba(0, 0, 0, 0.45);
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-}
-
-.process-agent {
-  color: #E17814;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 1px;
-  border-bottom: 1px dashed rgba(225, 120, 20, 0.4);
-  padding: 6px 8px;
-}
-
-.process-content {
-  padding: 8px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: rgb(122, 255, 168);
-  max-height: 180px;
-  overflow-y: auto;
-}
-
-.process-content :deep(*) {
-  color: inherit !important;
-}
-
-@media (max-width: 960px) {
-  .process-sides {
-    grid-template-columns: 1fr;
-  }
-}
-
-.result-footer {
-  margin-top: 25px;
-  display: flex;
-  justify-content: space-around;
-  border-top: 1px dashed rgba(225, 120, 20, 0.5);
-  padding-top: 20px;
-}
-
-.vote-summary {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.vote-label {
-  color: #E17814;
-  font-size: 14px;
-  letter-spacing: 2px;
-}
-
-.vote-approve {
-  color: rgb(122, 255, 168);
-  font-size: 24px;
-  font-weight: bold;
-  text-shadow: 0 0 10px rgb(122, 255, 168);
-  letter-spacing: 4px;
-}
-
-.vote-reject {
-  color: #ff3333;
-  font-size: 24px;
-  font-weight: bold;
-  text-shadow: 0 0 10px #ff3333;
-  letter-spacing: 4px;
+@media (max-width: 400px), (max-height: 400px) {
+  .magi-app { --body-padding: 10px; font-size: .8em; }
 }
 </style>
